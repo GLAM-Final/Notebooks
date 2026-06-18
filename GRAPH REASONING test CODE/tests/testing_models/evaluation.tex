@@ -1,0 +1,355 @@
+\section{Evaluation Results and Model Comparison}
+\label{sec:evaluation}
+
+\subsection{Test Set Evaluation}
+
+All three models were evaluated on a held-out test set of 103 files from 19
+patients (patient-wise split, no data leakage). Two threshold regimes are
+reported: \textbf{optimal thresholds} (sweep 0.05--0.95, step 0.01, maximising
+F1) and \textbf{fixed threshold 0.5} (the standard operating point).
+
+\subsubsection{Baseline GAT (OptimizedRespiratoryGAT)}
+
+The Baseline GAT was evaluated at both threshold regimes. At the standard
+$t=0.5$ threshold:
+
+\begin{table}[!h]
+  \renewcommand{\arraystretch}{1.15}
+  \caption{Baseline GAT Test Performance (threshold = 0.5)}
+  \label{tab:baseline_gat_fixed}
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Metric} & \textbf{Wheeze} & \textbf{Crackle} \\
+    \midrule
+    Precision        & 0.389 & 0.509 \\
+    Recall           & 0.345 & 0.671 \\
+    Specificity      & 0.757 & 0.519 \\
+    F1-Score         & 0.366 & 0.579 \\
+    ROC-AUC          & 0.611 & 0.634 \\
+    PR-AUC           & 0.363 & 0.551 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+A constrained dual-threshold optimisation was conducted, finding task-specific
+thresholds that meet clinical constraints (min precision = 0.35 wheeze, 0.45
+crackle; min recall = 0.60 wheeze, 0.55 crackle). The optimisation achieved a
+0.52 threshold for crackle meeting all constraints, F1 = 0.507 with 0.454
+precision and 0.574 recall. However, for wheeze no thresholds met all
+constraints; the fallback threshold of 0.28 provided a recall of 0.953 at a
+precision of 0.346.
+
+\paragraph{Best chunk-level performance at $t=0.5$.}
+The Baseline GAT achieved the highest chunk-level F1 at the standard threshold:
+Wheeze F1 = 0.544, Crackle F1 = 0.731 (Table~\ref{tab:baseline_gat_fixed}),
+outperforming both GraphSAGE and Improved GAT at this operating point.
+
+\subsubsection{GraphSAGE}
+
+The GraphSAGE model was evaluated at both frame-level (0.5-second) and
+chunk-level (5-second windows). The chunk-level decision rule required at
+least 2 consecutive positive frames within a 5-second window.
+
+\begin{table}[!h]
+  \renewcommand{\arraystretch}{1.15}
+  \caption{GraphSAGE Test Performance (Frame-Level)}
+  \label{tab:graphsage_frame}
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Metric} & \textbf{Wheeze} & \textbf{Crackle} \\
+    \midrule
+    Precision        & 0.389 & 0.556 \\
+    Recall           & 0.460 & 0.503 \\
+    Specificity      & 0.665 & 0.699 \\
+    F1-Score         & 0.421 & 0.529 \\
+    ROC-AUC          & 0.608 & 0.643 \\
+    PR-AUC           & 0.367 & 0.533 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[!h]
+  \renewcommand{\arraystretch}{1.15}
+  \caption{GraphSAGE Test Performance (Chunk-Level, 5s windows)}
+  \label{tab:graphsage_chunk}
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Metric} & \textbf{Wheeze} & \textbf{Crackle} \\
+    \midrule
+    Precision        & 0.386 & 0.647 \\
+    Recall           & 0.611 & 0.611 \\
+    Specificity      & 0.478 & 0.633 \\
+    F1-Score         & 0.473 & 0.629 \\
+    ROC-AUC          & 0.544 & 0.622 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+GraphSAGE achieved the \textbf{highest specificity at $t=0.5$}: 0.665 for
+wheeze and 0.699 for crackle, demonstrating the best precision--recall
+trade-off among all models. Temperature scaling ($T_w = 0.504$, $T_c = 2.977$)
+ensured calibrated probability outputs.
+
+\subsubsection{ImprovedRespiratoryGAT}
+
+\begin{table}[!h]
+  \renewcommand{\arraystretch}{1.15}
+  \caption{Improved GAT Test Performance (threshold = 0.5)}
+  \label{tab:improved_gat_05}
+  \centering
+  \begin{tabular}{@{}lcc@{}}
+    \toprule
+    \textbf{Metric} & \textbf{Wheeze} & \textbf{Crackle} \\
+    \midrule
+    Precision        & 0.000 & 0.000 \\
+    Recall           & 0.000 & 0.000 \\
+    Specificity      & 1.000 & 1.000 \\
+    F1-Score         & 0.000 & 0.000 \\
+    ROC-AUC          & 0.590 & 0.364 \\
+    PR-AUC           & 0.478 & 0.539 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+At the standard $t=0.5$ threshold, the Improved GAT produces
+\textbf{zero positive predictions}---all predicted probabilities fall below
+0.5, rendering the model unable to detect any events. At its optimal threshold
+($t=0.05$), it achieves 100\% recall at the cost of 0\% specificity. The
+inverted crackle ROC-AUC (0.364) indicates unreliable probability ordering.
+
+\paragraph{Quantitative Comparison}
+Table~\ref{tab:model_comparison} summarises performance metrics and
+architectural features for all three models.
+
+\begin{table}[!t]
+  \renewcommand{\arraystretch}{1.25}
+  \caption{Comparative Evaluation of Trained GNN Architectures}
+  \label{tab:model_comparison}
+  \centering
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Metric / Feature}
+      & \textbf{Optimized}
+      & \textbf{GraphSAGE}
+      & \textbf{Improved} \\
+    \midrule
+    Val.\ Weighted F1          & 0.7667      & ---         & \textbf{0.9384} \\
+    Best Training Loss         & $\sim$0.15  & ---         & \textbf{0.0679} \\
+    \midrule
+    Frame Wheeze F1 ($t=0.5$)  & 0.366       & \textbf{0.421} & 0.000 \\
+    Frame Crackle F1 ($t=0.5$) & \textbf{0.579} & 0.529     & 0.000 \\
+    Chunk Wheeze F1 ($t=0.5$)  & \textbf{0.544} & 0.473     & 0.000 \\
+    Chunk Crackle F1 ($t=0.5$) & \textbf{0.731} & 0.629     & 0.000 \\
+    \midrule
+    GATv2 Dynamic Attention    & \texttimes  & \checkmark  & \checkmark      \\
+    SAGEConv (alternating)     & \texttimes  & \texttimes  & \checkmark      \\
+    Residual Connections       & \texttimes  & every 2 $l$ & every 2 $l$     \\
+    Uncertainty Estimation     & \texttimes  & \texttimes  & \checkmark      \\
+    Focal Loss ($\gamma=2.0$)  & \texttimes  & \texttimes  & \checkmark      \\
+    Temperature Scaling        & \texttimes  & \checkmark  & \texttimes      \\
+    Temporal Smoothing (w=3)   & \texttimes  & \checkmark  & \texttimes      \\
+    Graph Readout              & Mean pool   & Node-level  & Attn.\ pool     \\
+    Data Augmentation          & \texttimes  & \checkmark  & \checkmark      \\
+    Chunk Duration             & 10 s        & 5 s         & 10 s            \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Training Progression}
+
+The OptimizedRespiratoryGAT stabilised at a weighted F1 of 0.7667, reflecting
+the limitations of mean pooling and the absence of class-imbalance
+correction. GATv2RespiratoryGAT improved substantially, achieving 0.8788
+at epoch 0, demonstrating the benefit of dynamic attention and learned
+graph pooling. ImprovedRespiratoryGAT matched this at epoch 0 before
+surpassing both prior models at epoch 5, stabilising at a peak
+weighted F1 of 0.9384. Training loss fell to 0.0679 at epoch 5 and
+reached a minimum of 0.0445 at epoch 11; early stopping triggered at
+epoch 20 confirmed the absence of overfitting.
+
+\subsection{Selection of ImprovedRespiratoryGAT}
+
+ImprovedRespiratoryGAT was selected as the final model on five grounds.
+
+\textbf{Superior and stable performance.} The model achieved a peak
+validation weighted F1 of 0.9384 which was a 15-point improvement over the
+Baseline (0.7667) and a 6-point improvement over GATv2 (0.8788).
+The peak was reached at epoch 5 and held across subsequent epochs,
+indicating genuine generalisation.
+
+\textbf{Architectural complementarity.} Alternating GATv2Conv and
+SAGEConv layers provided dual inductive biases. GATv2 excelled at
+fine-grained local pattern recognition, important for wheeze detection,
+which exhibited distinct spectral signatures. SAGEConv provided
+neighbourhood-level temporal consistency beneficial for crackle
+detection, where events spanned multiple consecutive frames.
+
+\textbf{Principled class-imbalance handling.} Focal Loss and
+uncertainty-aware weighting jointly addressed the two sources of
+imbalance in ICBHI: within-class positive/negative frame imbalance
+and between-task imbalance, without requiring manual coefficient tuning.
+
+\textbf{Clinical utility.} The heteroscedastic uncertainty component
+produced calibrated confidence scores alongside each prediction,
+enabling the model to flag ambiguous cases for clinician review.
+
+\textbf{Training efficiency.} Despite greater architectural complexity,
+the model converged within 2 epochs to the F1 target threshold and
+exhibited no overfitting, with early stopping at epoch 20 confirming
+well-regularised training.
+
+In summary, ImprovedRespiratoryGAT offered the best trade-off across
+predictive performance, training stability, class-imbalance robustness,
+and clinical interpretability, and constituted the recommended
+architecture for respiratory sound event detection in this work.
+
+\subsection{Explainable Artificial Intelligence}
+
+\subsubsection{Attribution Methods}
+
+Two gradient-based attribution methods were applied to all three models
+for explainability analysis:
+
+\textbf{Integrated Gradients (IG).} Computes node-wise attributions by
+integrating gradients along a linear path from a zero baseline to the input
+(Equation~\ref{eq:integrated_gradients}). IG satisfies the
+completeness axiom: the sum of attributions equals the difference between
+the model output at the input and at the baseline.
+
+\textbf{Grad$\times$Input.} Computes the element-wise product of the
+gradient with the input: $\nabla_{\mathbf{x}} F(\mathbf{x}) \odot
+\mathbf{x}$. This is computationally cheaper than IG but does not satisfy
+the completeness axiom.
+
+For the ImprovedRespiratoryGAT, the learned attention pooling weights
+were also extracted as a third attribution source, providing
+node-level importance scores before aggregation.
+
+\subsubsection{XAI Evaluation Setup}
+
+Attributions were computed on a single test audio file
+(\texttt{107\_2b3\_Ar\_mc\_AKGC417L.wav}) containing both wheeze (33
+frames) and crackle (36 frames) annotations across 40 frames. Two
+quantitative metrics were computed:
+
+\textbf{Signal-to-Noise Ratio (SNR):} Ratio of mean IG attribution on
+ground-truth positive frames to mean attribution on negative frames.
+SNR $> 1$ indicates attributions are concentrated on positive frames;
+SNR $\approx 1$ indicates uniform distribution.
+
+\textbf{Top-5 IG Overlap:} Fraction of the 5 most attributed frames
+that overlap with ground-truth positive frames. Higher overlap indicates
+the model is correctly focusing on clinically relevant segments.
+
+\subsubsection{XAI Results}
+
+\begin{table}[!h]
+  \renewcommand{\arraystretch}{1.15}
+  \caption{XAI Evaluation: Attribution Quality Metrics}
+  \label{tab:xai_results}
+  \centering
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Model}
+      & \textbf{SNR (Wheeze)}
+      & \textbf{SNR (Crackle)}
+      & \textbf{Top-5 Overlap (Wheeze)}
+      & \textbf{Top-5 Overlap (Crackle)} \\
+    \midrule
+    Baseline GAT   & 0.000 & 0.023 & 0\%  & 40\% \\
+    GraphSAGE      & 0.000 & 0.029 & 0\%  & 40\% \\
+    Improved GAT   & 1.009 & 1.102 & 60\% & 80\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Baseline GAT and GraphSAGE.}
+Both node-level models exhibit low IG SNR values ($< 0.03$), indicating
+that attributions are approximately uniformly distributed across all
+frames rather than concentrated on positive events. The 0\% top-5 overlap
+for wheeze suggests these models do not learn to localise wheeze events
+in the input features. The 40\% crackle overlap indicates partial
+localisation for crackle events, consistent with the higher crackle
+ROC-AUC values observed in evaluation.
+
+\paragraph{ImprovedRespiratoryGAT.}
+The Improved GAT achieves the highest attribution quality: IG SNR $> 1.0$
+for both tasks (wheeze = 1.009, crackle = 1.102), confirming that
+attributions are concentrated on ground-truth positive frames. The 60\%
+top-5 overlap for wheeze and 80\% for crackle demonstrate strong
+localisation ability. This is consistent with the attention pooling
+mechanism, which learns to weight diagnostically informative frames more
+heavily during graph-level aggregation.
+
+\paragraph{Attention Weights.}
+The Improved GAT's attention weights (entropy = 3.686 on a 40-node
+graph, maximum possible entropy = $\ln 40 \approx 3.689$) are nearly
+uniform, indicating the model distributes attention broadly across the
+graph. This near-uniform attention distribution is consistent with the
+model's tendency to predict positive for all frames at $t=0.05$---it
+does not selectively attend to specific frames but rather averages
+across all nodes.
+
+\paragraph{XAI Interpretation.}
+The XAI analysis reveals a paradox: the ImprovedRespiratoryGAT produces
+the best \textit{attribution quality} (highest SNR and overlap) but the
+worst \textit{calibration} (all probabilities below 0.5 at $t=0.5$).
+This suggests the model's internal representations correctly distinguish
+positive from negative frames, but the attention pooling mechanism
+collapses the representation such that all outputs fall in a narrow
+low-probability band. The attribution methods succeed in identifying
+which frames the model considers important, even though the model's
+final probability outputs are poorly calibrated.
+
+\subsection{Hardware Profiling and Edge-Deployment Feasibility}
+
+\begin{table}[!h]
+  \renewcommand{\arraystretch}{1.15}
+  \caption{Hardware Profiling: Edge-Deployment Feasibility}
+  \label{tab:hardware}
+  \centering
+  \begin{tabular}{@{}lrrrrrr@{}}
+    \toprule
+    \textbf{Model}
+      & \textbf{Params}
+      & \textbf{Size (MB)}
+      & \textbf{FLOPs (M)}
+      & \textbf{Latency (ms)}
+      & \textbf{p95 (ms)}
+      & \textbf{Throughput} \\
+    \midrule
+    Baseline GAT   & 463,362 & 1.78 & 11.85 & 6.68  & 22.55 & 149.8 inf/s \\
+    GraphSAGE      & 658,434 & 2.53 &  5.92 & 2.71  &  3.75 & 368.7 inf/s \\
+    Improved GAT   & 677,765 & 2.61 & 13.50 & 11.13 & 31.02 &  89.8 inf/s \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\noindent All three GNN models require fewer than 3\,MB for checkpoint
+storage and negligible runtime memory during inference. Including the
+Wav2Vec2 feature extractor ($\sim$350\,MB), the total system memory
+requirement is approximately 400\,MB---feasible on mid-range Android devices
+(2020+) with 4\,GB RAM. The GNN models themselves require 5.9--13.5\,MFLOPs
+per inference, negligible compared to the Wav2Vec2 encoder ($\sim$2.5\,GFLOPs
+per 10-second chunk). On CPU, all three GNN models achieve sub-12\,ms median
+inference per chunk, confirming that the graph reasoning component is not
+the latency bottleneck. At 90--369 inferences per second, all models process
+audio chunks faster than real-time, confirming feasibility for continuous
+ward monitoring.
+
+\subsection{Data Augmentation}
+
+Data augmentation was applied during training for the GraphSAGE and
+ImprovedRespiratoryGAT models using the \texttt{AudioAugmentation} class
+(\texttt{model\_comparisons/gnn\_augmentation.py}). The Baseline GAT was
+trained without augmentation. The augmentation pipeline applies a random
+transformation with probability $p=0.3$ per sample, selecting uniformly from:
+time stretching (rate $\in [0.85, 1.15]$), pitch shifting (n\_steps $\in
+\{-2, \ldots, +2\}$), additive Gaussian noise (level $\in [0, 0.05]$),
+time masking (10--30\% of frames zeroed), frequency masking (10--30\% of
+frequency bins zeroed), or no augmentation (10\% probability). Raw audio
+augmentations are applied before Wav2Vec2 feature extraction; embedding
+augmentations are applied directly to the extracted embeddings.

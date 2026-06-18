@@ -1,0 +1,94 @@
+{
+  "synthetic_batch": {
+    "GATv2": {
+      "wheeze": {
+        "mean_prob": 0.5734475463628769,
+        "std_prob": 0.041065833694324434,
+        "pred_positive_rate": 0.9666666666666667,
+        "accuracy": 0.36666666666666664,
+        "precision": 0.3448275862068966,
+        "recall": 1.0,
+        "f1": 0.5128205128205128,
+        "roc_auc": 0.255,
+        "pr_auc": 0.24854186291508806
+      },
+      "crackle": {
+        "mean_prob": 0.37127942641576134,
+        "std_prob": 0.04176499240918815,
+        "pred_positive_rate": 0.0,
+        "accuracy": 0.6666666666666666,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": 0.43,
+        "pr_auc": 0.3360894278135657
+      },
+      "timing": {
+        "mean_ms": 10.463198026021322,
+        "std_ms": 3.3492136313407137,
+        "min_ms": 6.030559539794922,
+        "max_ms": 18.491268157958984
+      }
+    },
+    "GraphSAGE": {
+      "wheeze": {
+        "mean_prob": 3.2668994792549153e-10,
+        "std_prob": 1.1049360744096971e-09,
+        "pred_positive_rate": 0.0,
+        "accuracy": 0.6666666666666666,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": 0.515,
+        "pr_auc": 0.5330030405166521
+      },
+      "crackle": {
+        "mean_prob": 1.0,
+        "std_prob": 0.0,
+        "pred_positive_rate": 1.0,
+        "accuracy": 0.3333333333333333,
+        "precision": 0.3333333333333333,
+        "recall": 1.0,
+        "f1": 0.5,
+        "roc_auc": 0.5,
+        "pr_auc": 0.3333333333333333
+      },
+      "timing": {
+        "mean_ms": 6.396245956420898,
+        "std_ms": 3.5491177637927493,
+        "min_ms": 2.0074844360351562,
+        "max_ms": 18.10908317565918
+      }
+    },
+    "ImprovedGAT": {
+      "wheeze": {
+        "mean_prob": 0.22639346520106,
+        "std_prob": 0.032190282539387806,
+        "pred_positive_rate": 0.0,
+        "accuracy": 0.6666666666666666,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": 0.725,
+        "pr_auc": 0.6633819730047351
+      },
+      "crackle": {
+        "mean_prob": 0.3172735318541527,
+        "std_prob": 0.04287805485745345,
+        "pred_positive_rate": 0.0,
+        "accuracy": 0.6666666666666666,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": 0.38,
+        "pr_auc": 0.324266688813827
+      },
+      "timing": {
+        "mean_ms": 9.894728660583496,
+        "std_ms": 4.078685143449429,
+        "min_ms": 4.997730255126953,
+        "max_ms": 25.158405303955078
+      }
+    }
+  }
+}
