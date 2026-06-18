@@ -1,0 +1,13 @@
+Model       , Level, Task   , Prec., Recall, Spec., F1   , Bal.Acc., ROC AUC, PR AUC, TP , FP , FN , TN
+Baseline_GAT, frame, wheeze , 0.389,  0.345, 0.757, 0.366,    0.551,   0.611,  0.363, 220, 345, 418, 1077
+Baseline_GAT, frame, crackle, 0.509,  0.671, 0.519, 0.579,    0.595,   0.634,  0.551, 589, 569, 289,  613
+Baseline_GAT, chunk, wheeze , 0.424,  0.757, 0.424, 0.544,    0.590,   0.590,  0.408,  28,  38,   9,   28
+Baseline_GAT, chunk, crackle, 0.594,  0.950, 0.093, 0.731,    0.522,   0.522,  0.593,  57,  39,   3,    4
+GraphSAGE   , frame, wheeze , 0.389,  0.460, 0.665, 0.421,    0.562,   0.608,  0.367, 150, 236, 176,  468
+GraphSAGE   , frame, crackle, 0.556,  0.503, 0.699, 0.529,    0.601,   0.643,  0.533, 222, 177, 219,  412
+GraphSAGE   , chunk, wheeze , 0.386,  0.611, 0.478, 0.473,    0.544,   0.544,  0.372,  22,  35,  14,   32
+GraphSAGE   , chunk, crackle, 0.647,  0.611, 0.633, 0.629,    0.622,   0.622,  0.599,  33,  18,  21,   31
+Improved_GAT, frame, wheeze , 0.000,  0.000, 1.000, 0.000,    0.500,   0.590,  0.478,   0,   0,  37,   66
+Improved_GAT, frame, crackle, 0.000,  0.000, 1.000, 0.000,    0.500,   0.364,  0.539,   0,   0,  60,   43
+Improved_GAT, chunk, wheeze , 0.000,  0.000, 1.000, 0.000,    0.500,   0.500,  0.359,   0,   0,  37,   66
+Improved_GAT, chunk, crackle, 0.000,  0.000, 1.000, 0.000,    0.500,   0.500,  0.583,   0,   0,  60,   43
